@@ -1,0 +1,187 @@
+---
+title: "Final_Start"
+output:
+  pdf_document: default
+  html_document: default
+date: "2025-04-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## CSV Dosyaları Okuma
+
+
+
+```{r}
+library(tidyverse)
+library(here)
+library(lubridate)
+library(agricolae)
+library(zoo)
+
+#read all files
+Ulanbator_2015 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2015_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2016 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2016_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2017 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2017_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2018 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2018_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2019 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2019_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2020 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2020_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2021 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2021_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2022 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2022_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2023 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2023_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2024 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2024_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2025 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2025_YTD.csv"), stringsAsFactors = TRUE )
+
+#merge files into one file
+Ulanbator_PM2.5 <- bind_rows(Ulanbator_2015,Ulanbator_2016,Ulanbator_2017,Ulanbator_2018,Ulanbator_2019,Ulanbator_2020,Ulanbator_2021,Ulanbator_2022,Ulanbator_2023,Ulanbator_2024,Ulanbator_2025)
+
+#remove yearly data from environment if wanted
+#rm(Ulanbator_2015,Ulanbator_2016,Ulanbator_2017,Ulanbator_2018,Ulanbator_2019,Ulanbator_2020,Ulanbator_2021,Ulanbator_2022,Ulanbator_2023,Ulanbator_2024,Ulanbator_2025)
+
+#clean -999 AQI values, in order to prevent failure in mean calculations
+Ulanbator_clean <- Ulanbator_PM2.5 %>% filter(AQI != -999)
+
+#create monthly data by taking mean of every month. because various health data are monthly 
+Ulanbator_monthly <- Ulanbator_clean %>%
+  group_by(Year,Month) %>%
+  summarise(mean_AQI = mean(AQI, na.rm = TRUE)) %>%
+  mutate(Year_Month = sprintf("%d-%02d", Year, Month)) %>%
+  select(Year_Month,mean_AQI)
+
+
+#create new dataset to include every month from 2015-11 to 2025-02
+Ulanbator_monthly_full <- Ulanbator_monthly %>%
+  mutate(Year = as.integer(substr(Year_Month, 1, 4)),
+         Month = as.integer(substr(Year_Month, 6,7))) %>%
+  select(Year,Month,mean_AQI)
+
+
+#create Date column in this full months dataset
+Ulanbator_monthly_full <- Ulanbator_monthly %>%
+  mutate(
+    Date = as.Date(paste0(Year_Month, "-01")),
+    Year = year(Date),
+    Month = month(Date)
+  ) %>%
+  select(Year, Month, mean_AQI, Date)
+
+#detect starting and ending months
+date_range <- seq(
+  from = min(Ulanbator_monthly_full$Date),
+  to   = max(Ulanbator_monthly_full$Date),
+  by = "month"
+)
+
+#remove Date column in order to prevent two same columns after left_join. realized after left_join and added here
+Ulanbator_monthly_full <- Ulanbator_monthly_full %>% select(-Date)
+
+#Main dataframe is created here. including Date, and mean AQI values. AQI is na for missing months.
+Ulanbator <- data.frame(
+  Date = date_range
+) %>%
+  mutate(
+    Year = year(Date),
+    Month = month(Date)
+  ) %>%
+  left_join(Ulanbator_monthly_full, by = c("Year", "Month"))
+   
+
+#fill missing months by linear interpolation
+Ulanbator$mean_AQI <- na.approx(Ulanbator$mean_AQI, na.rm = FALSE)
+
+
+#starting heath data. 
+#births under 2500g in Ulaanbaatar
+Birth_Under_2500 <- read.csv(here("Final/Data_Raw/BIRTH WEIGTH LOWER THAN 2500 GRAMS.csv"), stringsAsFactors = TRUE)
+
+#change column names
+colnames(Birth_Under_2500) <- colnames(Birth_Under_2500) %>%
+  str_replace("^X", "") %>%       # delete x from colnames. read csv added x to every column, don't know why
+  str_replace_all("\\.", "-")     # Change the format to 2016-01
+
+#data is horizontal. change to vertical
+Birth_Under_2500 <- Birth_Under_2500 %>%
+  pivot_longer(
+    cols = -1,  # first column includes aimag name Ulaanbaatar. don't take it.
+    names_to = "Year_Month",
+    values_to = "Birth.Weight.Under.2500"
+  ) %>% 
+  select(Year_Month, Birth.Weight.Under.2500)
+
+#create Date column in Birth Weight data in 2016-01-01 format
+Birth_Under_2500 <- Birth_Under_2500 %>%
+  mutate(Date = ym(`Year_Month`)) %>%
+  select(Date, Birth.Weight.Under.2500)
+
+
+#merge main dataframe with birth weight data with respect to Date columns
+Ulanbator <- Ulanbator %>%
+  left_join(Birth_Under_2500, by = "Date")
+
+
+#read second csv. live births in Ulaanbaatar
+Live_Births <- read.csv(here("Final/Data_Raw/LIVE BIRTHS.csv"))
+
+#same procedure as before. 
+colnames(Live_Births) <- colnames(Live_Births) %>%
+  str_replace("^X", "") %>%       # delete x from colnames. read csv added x to every column, don't know why
+  str_replace_all("\\.", "-")     # Change the format to 2016-01
+
+#data is horizontal. change to vertical
+Live_Births <- Live_Births %>%
+  pivot_longer(
+    cols = -1,  # first column includes aimag name Ulaanbaatar. don't take it.
+    names_to = "Year_Month",
+    values_to = "Live.Births"
+  ) %>% 
+  select(Year_Month, Live.Births)
+
+#create Date column in Birth Weight data in 2016-01-01 format
+Live_Births <- Live_Births %>%
+  mutate(Date = ym(`Year_Month`)) %>%
+  select(Date, Live.Births)
+
+#merge with main dataframe
+Ulanbator <- Ulanbator %>%
+  left_join(Live_Births, by = "Date")
+
+
+#want to calculate percentage of birth weight under 2500 in all births. Live birth column include "," and this blocks mathematical operation. remove "," from live birth data
+Ulanbator$Live.Births <- gsub(",", "", Ulanbator$Live.Births)
+
+#change class of live births column to numeric to make mathematical calculation 
+Ulanbator$Live.Births <- as.numeric(Ulanbator$Live.Births)
+
+#create new column that is percentage of under 2500g births in total
+Ulanbator <- Ulanbator %>%
+  mutate(Under.2500.Rate = Birth.Weight.Under.2500 / Live.Births *100)
+
+
+#plot under 2500g births by mean_AQI
+ggplot(Ulanbator, aes(x=mean_AQI, y=Under.2500.Rate)) +
+  geom_point()
+
+
+#regression example between under 2500g births and mean_AQI
+regresyon_deneme <- lm(data = Ulanbator, Under.2500.Rate ~ mean_AQI) #linear regression of temperature by depth
+
+#no relation
+summary(regresyon_deneme)
+
+ 
+  
+```
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
