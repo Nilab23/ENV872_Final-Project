@@ -450,16 +450,6 @@ results %>%
 
 ```
 
-# 4. Interpretation
-
-> Our analysis reveals a **positive association** between monthly PM2.5 concentrations and the number as well as the proportion of low birth weight births in Ulaanbaatar.
->
-> - The **lagged PM2.5 exposure (lag 1 month)** appears to have the strongest and most statistically significant effect.
-> - Policy measures targeting **air pollution control early in pregnancy** could effectively lower the incidence of low birth weight.
-
-# 5. Conclusion
-
-This study highlights the health burden of air pollution on birth outcomes in Ulaanbaatar. Future work could further refine exposure windows during pregnancy and explore seasonal patterns.
 
 ---
 
