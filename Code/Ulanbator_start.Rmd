@@ -4,6 +4,8 @@ output:
   pdf_document: default
   html_document: default
 date: "2025-04-16"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -22,17 +24,17 @@ library(agricolae)
 library(zoo)
 
 #read all files
-Ulanbator_2015 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2015_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2016 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2016_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2017 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2017_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2018 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2018_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2019 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2019_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2020 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2020_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2021 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2021_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2022 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2022_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2023 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2023_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2024 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2024_YTD.csv"), stringsAsFactors = TRUE )
-Ulanbator_2025 <- read.csv(here("Final/Data_Raw/Ulaanbaatar_PM2.5_2025_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2015 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2015_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2016 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2016_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2017 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2017_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2018 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2018_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2019 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2019_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2020 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2020_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2021 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2021_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2022 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2022_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2023 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2023_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2024 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2024_YTD.csv"), stringsAsFactors = TRUE )
+Ulanbator_2025 <- read.csv(here("Data/Raw/Ulaanbaatar_PM2.5_2025_YTD.csv"), stringsAsFactors = TRUE )
 
 #merge files into one file
 Ulanbator_PM2.5 <- bind_rows(Ulanbator_2015,Ulanbator_2016,Ulanbator_2017,Ulanbator_2018,Ulanbator_2019,Ulanbator_2020,Ulanbator_2021,Ulanbator_2022,Ulanbator_2023,Ulanbator_2024,Ulanbator_2025)
@@ -94,7 +96,7 @@ Ulanbator$mean_AQI <- na.approx(Ulanbator$mean_AQI, na.rm = FALSE)
 
 #starting heath data. 
 #births under 2500g in Ulaanbaatar
-Birth_Under_2500 <- read.csv(here("Final/Data_Raw/BIRTH WEIGTH LOWER THAN 2500 GRAMS.csv"), stringsAsFactors = TRUE)
+Birth_Under_2500 <- read.csv(here("Data/Raw/BIRTH WEIGTH LOWER THAN 2500 GRAMS.csv"), stringsAsFactors = TRUE)
 
 #change column names
 colnames(Birth_Under_2500) <- colnames(Birth_Under_2500) %>%
@@ -169,9 +171,6 @@ regresyon_deneme <- lm(data = Ulanbator, Under.2500.Rate ~ mean_AQI) #linear reg
 
 #no relation
 summary(regresyon_deneme)
-
- 
-  
 ```
 
 

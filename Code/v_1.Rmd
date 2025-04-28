@@ -1,0 +1,467 @@
+---
+title: "Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar (2016-2025)"
+author: "Ahmedi, Barua, Bhuyan, Karayel"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document: default
+
+---
+```{r}
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(stats)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(broom)
+library(ggpubr)
+library(here)
+library(janitor)
+library(forecast)
+```
+
+# 1. Load and Clean Data
+
+```{r read-data}
+# Read birth weight and live births data
+birth_weight_low <- read.csv(here("Data/Raw/BIRTH WEIGTH LOWER THAN 2500 GRAMS.csv"), stringsAsFactors = TRUE)
+
+live_births <- read.csv(here("./Data/Raw/LIVE BIRTHS.csv"), stringsAsFactors = TRUE)
+
+# Clean live births: remove commas (if any) and converting to numeric()
+# Might not need this as a visula check
+
+live_births_clean <- live_births
+ 
+ for (col in names(live_births_clean)[-1]) {
+   live_births_clean[[col]] <- as.numeric(gsub(",", "", live_births_clean[[col]]))
+ }
+
+# The data is wide, need to convert the data to long format
+birth_weight_low_long <- birth_weight_low %>% 
+  pivot_longer(-Aimag, 
+               names_to = "Month", 
+               values_to = "Low_Birth_Weight")
+
+live_births_long <- live_births_clean %>% 
+  pivot_longer(-Aimag, 
+               names_to = "Month", 
+               values_to = "Live_Births")
+
+# Merge two datasets
+births_merged <- left_join(birth_weight_low_long,
+                           live_births_long, 
+                           by = c("Aimag", "Month"))
+# Removing "X" from month names
+birth_weight_low_long <- birth_weight_low_long %>%
+  mutate(Month = gsub("^X", "", Month))
+
+live_births_long <- live_births_long %>%
+  mutate(Month = gsub("^X", "", Month))
+
+# Merging two datasets
+births_merged <- left_join(birth_weight_low_long, live_births_long, by = c("Aimag", "Month"))
+
+# Creating Date column
+births_merged <- births_merged %>%
+  mutate(Date = ym(Month)) %>%
+  select(Aimag, Date, Low_Birth_Weight, Live_Births)
+
+# # Quick checks
+# str(births_merged)
+# colSums(is.na(births_merged))
+# summary(births_merged)
+# class(births_merged)
+
+```
+
+
+
+```{r read-pm25}
+
+# 1. Read and Combine All PM2.5 Files
+years <- 2015:2025
+pm25_files <- paste0("./Data/Raw/Ulaanbaatar_PM2.5_", years, "_YTD.csv")
+names(pm25_files) <- years
+
+# Read and bind all
+pm25_all <- map_dfr(pm25_files, ~ read_csv(.x, show_col_types = FALSE))
+
+# 2. Convert all -999 to NA across numeric columns only
+pm25_all <- pm25_all %>%
+  mutate(across(where(is.numeric), ~ na_if(., -999)))
+
+
+# Now I need to convert all the hourly, daily, monthly and yearly data into a DateTime object. The plan is to separate hourly data and take average of hours to make it daily and same to make it monthly. 
+
+pm25_all <- pm25_all %>%
+  clean_names() # Date(LT) was giving all troubles. used janitor package to rename to clean                      variable name. it cleaned all the variables name
+
+pm25_all <- pm25_all %>%
+  rename(DateTime = date_lt) %>%  
+  mutate(
+    DateTime = parse_date_time(DateTime, orders = "ymd IMp"),
+    Date     = date(DateTime)
+  )
+
+# Now I will create 3 dataset, hourly, daily and monthly just to make sure if anything goes wrong I can come back
+pm25_hourly <- pm25_all
+
+# DAILY aggregation
+# Did not use nowcast as it is smoothed data. used raw concentration
+
+# DAILY aggregation
+pm25_daily <- pm25_hourly %>%
+  mutate(
+    Date     = date(DateTime)                # extract YYYY-MM-DD
+  ) %>%
+  group_by(Date) %>%
+  summarize(
+    raw_conc_daily    = mean(raw_conc, na.rm = TRUE),
+    aqi_daily         = mean(aqi,      na.rm = TRUE),
+    hours_reported    = n(),
+    hours_missing_raw = sum(is.na(raw_conc)),
+    hours_missing_aqi = sum(is.na(aqi)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    DateTime = as_datetime(Date)             # midnight timestamps
+  )
+
+# MONTHLY aggregation
+pm25_monthly <- pm25_daily %>%
+  mutate(
+    Month = floor_date(Date, "month")        # first day of each month
+  ) %>%
+  group_by(Month) %>%
+  summarize(
+    raw_conc_monthly   = mean(raw_conc_daily, na.rm = TRUE),
+    aqi_monthly        = mean(aqi_daily,      na.rm = TRUE),
+    days_reported      = n(),
+    days_missing_raw   = sum(is.na(raw_conc_daily)),
+    days_missing_aqi   = sum(is.na(aqi_daily)),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    DateTime = as_datetime(Month)            # first‐of‐month timestamps
+  )
+
+# YEARLY aggregation
+pm25_yearly <- pm25_monthly %>%
+  mutate(
+    Year = year(Month)
+  ) %>%
+  group_by(Year) %>%
+  summarize(
+    raw_conc_yearly    = mean(raw_conc_monthly, na.rm = TRUE),
+    aqi_yearly         = mean(aqi_monthly,      na.rm = TRUE),
+    months_reported    = n(),
+    months_missing_raw = sum(days_missing_raw > 0),
+    months_missing_aqi = sum(days_missing_aqi > 0),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    DateTime = ymd(paste0(Year, "-01-01"))    # Jan 1 of each year
+  )
+
+
+# Visuallizing pattern
+
+ggplot(pm25_daily, aes(x = Date, y = raw_conc_daily)) +
+  geom_line() +
+  labs(
+    title = "Daily PM 2.5 Concentrations (µg/m3)",
+    x     = "Date",
+    y     = "Daily mean raw_conc"
+  ) +
+  theme_minimal()
+
+# Treating missing value: 
+# visualizing missing value
+
+# Bar chart: number of months with ≥1 missing day each year
+# Create the pm25_yearly_missing summary
+pm25_yearly_missing <- pm25_monthly %>%
+  mutate(Year = year(Month)) %>%
+  group_by(Year) %>%
+  summarize(
+    total_months               = n(),
+    months_with_missing_days   = sum(days_missing_raw > 0),
+    total_missing_days         = sum(days_missing_raw),
+    .groups = "drop"
+  )
+
+# Plot
+ggplot(pm25_yearly_missing, aes(x = Year, y = months_with_missing_days)) +
+  geom_col(fill = "tomato") +
+  labs(
+    title = "Number of Months with Missing PM2.5 Data by Year",
+    x     = "Year",
+    y     = "Months with ≥1 Missing Day"
+  ) +
+  theme_minimal()
+
+# It looks like there is 9 month of missing data in 2015. We need to consider it afterwards.
+
+# Boxplot of monthly series to spot outliers
+ggplot(pm25_monthly, aes(y = raw_conc_monthly)) +
+  geom_boxplot(outlier.colour = "red", outlier.shape = 1) +
+  labs(
+    title = "Distribution of Monthly PM2.5",
+    y     = "Monthly mean PM2.5 (µg/m3)"
+  ) +
+  theme_minimal()
+
+# Looks like does not have a lot of outliers. we can ignore
+
+
+#write_csv(pm25_all, here("Data", "Processed", "pm25_all.csv"))
+
+
+
+# Final NA check
+summary(pm25_monthly)
+colSums(is.na(pm25_monthly))
+
+
+
+
+```
+
+```{r merge-data}
+# Merge PM2.5 with births
+full_data <- births_merged %>%
+  left_join(
+    pm25_monthly,
+    by = c("Date" = "Month")
+  ) %>%
+  arrange(Date)
+
+
+full_data %>% 
+  select(Date, Aimag, Low_Birth_Weight, Live_Births, raw_conc_monthly, aqi_monthly)
+```
+
+```{r Sumamry Staistics}
+
+
+# Summary for birth outcomes
+births_summary <- full_data %>%
+  summarise(
+    Mean_LBW       = mean(Low_Birth_Weight, na.rm = TRUE),
+    Median_LBW     = median(Low_Birth_Weight, na.rm = TRUE),
+    Min_LBW        = min(Low_Birth_Weight, na.rm = TRUE),
+    Max_LBW        = max(Low_Birth_Weight, na.rm = TRUE),
+    SD_LBW         = sd(Low_Birth_Weight, na.rm = TRUE),
+    N_LBW          = sum(!is.na(Low_Birth_Weight)),
+    
+    Mean_Live      = mean(Live_Births, na.rm = TRUE),
+    Median_Live    = median(Live_Births, na.rm = TRUE),
+    Min_Live       = min(Live_Births, na.rm = TRUE),
+    Max_Live       = max(Live_Births, na.rm = TRUE),
+    SD_Live        = sd(Live_Births, na.rm = TRUE),
+    N_Live         = sum(!is.na(Live_Births))
+  )
+
+births_summary %>%
+  t() %>% as.data.frame() %>%
+  rownames_to_column("Statistic") %>%
+  rename(Value = V1) %>%
+  kable(caption = "Summary of Birth Outcomes", digits = 2) %>%
+  kable_styling(full_width = FALSE)
+
+# 2. Summary for PM2.5 exposure
+pm25_summary <- full_data %>%
+  summarise(
+    Mean_PM25     = mean(raw_conc_monthly, na.rm = TRUE),
+    Median_PM25   = median(raw_conc_monthly, na.rm = TRUE),
+    Min_PM25      = min(raw_conc_monthly, na.rm = TRUE),
+    Max_PM25      = max(raw_conc_monthly, na.rm = TRUE),
+    SD_PM25       = sd(raw_conc_monthly, na.rm = TRUE),
+    N_PM25        = sum(!is.na(raw_conc_monthly)),
+
+    Mean_AQI      = mean(aqi_monthly, na.rm = TRUE),
+    Median_AQI    = median(aqi_monthly, na.rm = TRUE),
+    Min_AQI       = min(aqi_monthly, na.rm = TRUE),
+    Max_AQI       = max(aqi_monthly, na.rm = TRUE),
+    SD_AQI        = sd(aqi_monthly, na.rm = TRUE),
+    N_AQI         = sum(!is.na(aqi_monthly))
+  )
+
+pm25_summary %>%
+  t() %>% as.data.frame() %>%
+  rownames_to_column("Statistic") %>%
+  rename(Value = V1) %>%
+  kable(caption = "Summary of Monthly PM2.5 Exposure", digits = 2) %>%
+  kable_styling(full_width = FALSE)
+
+
+```
+
+
+# Descriptive Statistics
+```{r}
+
+# Compute low birth weight rate (%)
+full_data <- full_data %>%
+  mutate(
+    LBW_rate = 100 * Low_Birth_Weight / Live_Births
+  )
+
+# 2. Summary table of exposure and outcome
+summary_tbl <- full_data %>%
+  summarise(
+    Mean_PM25     = mean(raw_conc_monthly, na.rm = TRUE),
+    SD_PM25       = sd(raw_conc_monthly, na.rm = TRUE),
+    Mean_LBWrate  = mean(LBW_rate, na.rm = TRUE),
+    SD_LBWrate    = sd(LBW_rate, na.rm = TRUE),
+    N             = n()
+  ) %>%
+  pivot_longer(everything(), names_to="Metric", values_to="Value")
+
+summary_tbl %>%
+  kable(caption="Summary of PM2.5 and LBW Rate", digits=2) %>%
+  kable_styling(full_width=FALSE)
+
+# Scatter + trend line
+ggplot(full_data, aes(x = raw_conc_monthly, y = LBW_rate)) +
+  geom_point() +
+  geom_smooth(method="lm", se=TRUE, color="blue") +
+  labs(
+    title = "Low Birth Weight Rate vs. Monthly PM2.5",
+    x     = "PM2.5 (µg/m³)",
+    y     = "LBW Rate (%)"
+  ) +
+  theme_minimal()
+```
+#  Linear regression
+```{r}
+model <- lm(LBW_rate ~ raw_conc_monthly, data = full_data)
+tidy(model) %>%
+  kable(caption="Regression of LBW Rate on PM2.5", digits=3) %>%
+  kable_styling(full_width=FALSE)
+# Create proportion of low birth weight
+full_data <- full_data %>%
+  mutate(Proportion_LBW = Low_Birth_Weight / Live_Births)
+```
+
+
+Exposure timing plays a key role in accurately identifying how air pollution affects birth outcomes. Our initial analysis showed a weak and non-significant association between monthly PM2.5 levels and low birth weight rates (p = 0.113). This limited result probably occurred because measuring air pollution in the same month as birth ignores the critical periods during pregnancy when exposure actually affects fetal growth.
+
+To address this issue, we will use lagged regression methods. Lagged regression aligns PM2.5 exposure data with biologically relevant periods earlier in pregnancy, specifically during critical developmental windows like the second and third trimesters. Aligning exposure measurements with these sensitive gestational periods, similar to optimizing exposure timing in optical measurement systems (Wang et al., 2020; Li et al., 2021; Zhang et al., 2019), helps to minimize measurement uncertainty, reduce confounding from seasonal variations, and accurately identify the true health impacts of PM2.5 exposure on birth weight outcomes.
+
+References:
+Li et al., 2021; Wang et al., 2020; Zhang et al., 2019.
+
+```{r}
+
+# making sure it's sorted by date
+full_data <- full_data %>% 
+  arrange(Date)
+
+# creating lags 
+full_data <- full_data %>% 
+  mutate(
+    pm25_lag0 = raw_conc_monthly,
+    pm25_lag1 = lag(raw_conc_monthly, 1),
+    pm25_lag2 = lag(raw_conc_monthly, 2),
+    pm25_lag3 = lag(raw_conc_monthly, 3)
+  )
+
+# fitting a “distributed‐lag” linear model on the LBW rate
+model_lag <- lm(LBW_rate ~ pm25_lag0 + pm25_lag1 + pm25_lag2 + pm25_lag3,
+                data = full_data)
+
+# inspecting the month‐specific coefficients
+tidy(model_lag) %>% 
+  kable(digits=3, caption="Lagged PM₂.₅ Effects on LBW Rate") %>%
+  kable_styling(full_width=FALSE)
+
+# # Check correlations
+cor(full_data %>% select(pm25_lag0:pm25_lag3), use = "pairwise.complete.obs")
+
+# Or VIFs
+library(car)
+vif(lm(LBW_rate ~ pm25_lag0 + pm25_lag1 + pm25_lag2 + pm25_lag3,
+       data = full_data))
+
+
+
+# Cumulative two‐month average
+full_data <- full_data %>%
+  mutate(pm25_cum23 = (pm25_lag2 + pm25_lag3) / 2)
+
+lm(LBW_rate ~ pm25_cum23, data = full_data) %>% broom::tidy()
+
+dlm <- lm(LBW_rate ~ pm25_lag0 + pm25_lag1 + pm25_lag2 + pm25_lag3,
+          data = full_data)
+linearHypothesis(dlm, c("pm25_lag0 = 0",
+                        "pm25_lag1 = 0",
+                        "pm25_lag2 = 0",
+                        "pm25_lag3 = 0"))
+
+## Collapse to 2- and 3-month cumulative PM₂.₅ averages and re-fit
+
+library(dplyr)
+library(broom)
+library(knitr)
+library(kableExtra)
+
+# 1) Create cumulative exposure variables
+full_data <- full_data %>%
+  arrange(Date) %>%
+  mutate(
+    pm25_cum12  = (pm25_lag1 + pm25_lag2) / 2,          # average of 1- and 2-month lags
+    pm25_cum123 = (pm25_lag1 + pm25_lag2 + pm25_lag3) / 3  # average of 1-, 2-, 3-month lags
+  )
+
+# 2) Fit separate linear models
+model_cum12  <- lm(LBW_rate ~ pm25_cum12,  data = full_data)
+model_cum123 <- lm(LBW_rate ~ pm25_cum123, data = full_data)
+
+# 3) Summarize and display results side by side
+results <- bind_rows(
+  tidy(model_cum12)  %>% mutate(model = "cum12"),
+  tidy(model_cum123) %>% mutate(model = "cum123")
+) %>%
+  select(model, term, estimate, std.error, statistic, p.value)
+
+results %>%
+  kable(
+    caption = "Regression of LBW Rate on Cumulative PM2.₅ Averages",
+    digits  = 3
+  ) %>%
+  kable_styling(full_width = FALSE)
+
+
+
+
+
+```
+
+# 4. Interpretation
+
+> Our analysis reveals a **positive association** between monthly PM2.5 concentrations and the number as well as the proportion of low birth weight births in Ulaanbaatar.
+>
+> - The **lagged PM2.5 exposure (lag 1 month)** appears to have the strongest and most statistically significant effect.
+> - Policy measures targeting **air pollution control early in pregnancy** could effectively lower the incidence of low birth weight.
+
+# 5. Conclusion
+
+This study highlights the health burden of air pollution on birth outcomes in Ulaanbaatar. Future work could further refine exposure windows during pregnancy and explore seasonal patterns.
+
+---
+
+# End of Analysis
+
