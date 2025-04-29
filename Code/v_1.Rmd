@@ -1,12 +1,24 @@
 ---
-title: "Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar (2016-2025)"
+title: "Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar (2016–2025)"
 author: "Ahmedi, Barua, Bhuyan, Karayel"
 date: "`r Sys.Date()`"
 output:
   pdf_document:
     latex_engine: xelatex
+    keep_tex: true
+    toc: true
+    toc_depth: 2
+    number_sections: true
   html_document: default
-
+editor_options:
+  chunk_output_type: console
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage[table]{xcolor}
+  - \usepackage{float}
 ---
 ```{r}
 knitr::opts_knit$set(root.dir = here::here())
@@ -92,11 +104,16 @@ births_merged <- births_merged %>%
 
 # 1. Read and Combine All PM2.5 Files
 years <- 2015:2025
-pm25_files <- paste0("./Data/Raw/Ulaanbaatar_PM2.5_", years, "_YTD.csv")
+pm25_files <- paste0(
+  here("Data","Raw"), 
+  "/Ulaanbaatar_PM2.5_", years, "_YTD.csv"
+)
+
 names(pm25_files) <- years
 
 # Read and bind all
-pm25_all <- map_dfr(pm25_files, ~ read_csv(.x, show_col_types = FALSE))
+pm25_all <- map_dfr(pm25_files, read_csv, show_col_types = FALSE)
+
 
 # 2. Convert all -999 to NA across numeric columns only
 pm25_all <- pm25_all %>%
@@ -121,7 +138,6 @@ pm25_hourly <- pm25_all
 # DAILY aggregation
 # Did not use nowcast as it is smoothed data. used raw concentration
 
-# DAILY aggregation
 pm25_daily <- pm25_hourly %>%
   mutate(
     Date     = date(DateTime)                # extract YYYY-MM-DD
@@ -313,13 +329,13 @@ pm25_summary %>%
 # Descriptive Statistics
 ```{r}
 
-# Compute low birth weight rate (%)
+# Compute low birth weight rate (Percentage)
 full_data <- full_data %>%
   mutate(
     LBW_rate = 100 * Low_Birth_Weight / Live_Births
   )
 
-# 2. Summary table of exposure and outcome
+#  Summary table of exposure and outcome
 summary_tbl <- full_data %>%
   summarise(
     Mean_PM25     = mean(raw_conc_monthly, na.rm = TRUE),
@@ -340,8 +356,8 @@ ggplot(full_data, aes(x = raw_conc_monthly, y = LBW_rate)) +
   geom_smooth(method="lm", se=TRUE, color="blue") +
   labs(
     title = "Low Birth Weight Rate vs. Monthly PM2.5",
-    x     = "PM2.5 (µg/m³)",
-    y     = "LBW Rate (%)"
+    x     = "PM2.5 (µg/m3)",
+    y     = "LBW Rate (Percentage)"
   ) +
   theme_minimal()
 ```
@@ -385,7 +401,7 @@ model_lag <- lm(LBW_rate ~ pm25_lag0 + pm25_lag1 + pm25_lag2 + pm25_lag3,
 
 # inspecting the month‐specific coefficients
 tidy(model_lag) %>% 
-  kable(digits=3, caption="Lagged PM₂.₅ Effects on LBW Rate") %>%
+  kable(digits=3, caption="Lagged PM 2.5 Effects on LBW Rate") %>%
   kable_styling(full_width=FALSE)
 
 # # Check correlations
@@ -411,7 +427,7 @@ linearHypothesis(dlm, c("pm25_lag0 = 0",
                         "pm25_lag2 = 0",
                         "pm25_lag3 = 0"))
 
-## Collapse to 2- and 3-month cumulative PM₂.₅ averages and re-fit
+## Collapse to 2- and 3-month cumulative PM 2.5 averages and re-fit
 
 library(dplyr)
 library(broom)
@@ -439,7 +455,7 @@ results <- bind_rows(
 
 results %>%
   kable(
-    caption = "Regression of LBW Rate on Cumulative PM2.₅ Averages",
+    caption = "Regression of LBW Rate on Cumulative PM2.5 Averages",
     digits  = 3
   ) %>%
   kable_styling(full_width = FALSE)
@@ -450,6 +466,53 @@ results %>%
 
 ```
 
+```{r}
+#install.packages("dlnm")
+library(dlnm)
+
+# cross-basis for a 6-month lag window
+library(dlnm)
+
+# 1. define a cross‐basis for raw_conc_monthly up to 3‐month lag
+cb <- crossbasis(
+  full_data$raw_conc_monthly,
+  lag     = 3,
+  argvar  = list(fun="ns", df=3),   # natural spline on the exposure–response
+  arglag  = list(fun="ns", df=3)    # natural spline on the lag–response
+)
+
+# 2. fit the model *including* cb, not the separate pm25_lag0… variables
+dlmod <- lm(LBW_rate ~ cb, data = full_data)
+
+
+cen_pm25 <- median(full_data$raw_conc_monthly, na.rm=TRUE)
+
+pred <- crosspred(
+  cb,            # your crossbasis
+  dlmod,         # your dlm with cb in it
+  at   = cen_pm25,
+  cen  = cen_pm25,
+  bylag = 1
+)
+
+
+# now draw the lag‐response curve:
+plot(
+  pred,
+  "slices",           # draw slices
+  var   = cen_pm25,   # which PM2.5 to slice at
+  ci    = "lines",    # draw the 95% CI as lines
+  xlab  = "Lag (months)",
+  ylab  = "Change in LBW rate (Percantage)",
+  main  = paste0(
+    "Lag–response at PM2.5 = ", 
+    round(cen_pm25,1), 
+    " µg/m3"
+  )
+)
+
+
+```
 
 ---
 
