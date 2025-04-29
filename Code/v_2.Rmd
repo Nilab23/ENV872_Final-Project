@@ -123,7 +123,7 @@ births_merged <- left_join(birth_weight_long, live_births_long, by = c("Aimag", 
 
 ```
 
-# Exploratory Analysis
+# Exploratory Analysis and Visualizations 
 We start by analyzing the structure, quality, and time-related aspects of the air pollution data.
 
 ##Daily and Monthly Aggregation of PM2.5
@@ -163,8 +163,8 @@ ggplot(pm25_daily, aes(x = Date, y = raw_conc_daily)) +
   theme_minimal()
 ```
 
-```{Analysis}
-#The plot titled "Daily PM2.5 Concentrations in Ulaanbaatar (µg/m³)" illustrates the average daily PM2.5 levels from 2015 until early 2025, showcasing a pronounced seasonal pattern. During winter, there are significant spikes—frequently surpassing 600 µg/m³ in 2016 and 2017—primarily attributed to coal burning for heating and atmospheric inversions that trap pollutants (World Bank, 2011; Amarsaikhan et al., 2014). Conversely, summer values are consistently lower, likely due to diminished emissions and enhanced air dispersion. These winter peaks greatly exceed the WHO’s recommended 24-hour safety limit of 15 µg/m³ (WHO, 2021), posing ongoing public health risks (Guttikunda & Lodoysamba, 2014). The chart is created using ggplot2 with a minimal theme and could be further improved by incorporating WHO guideline reference lines, annual dividers, or seasonal shading to enhance interpretability.
+```{Analysis, Concentration in Ulaanbaatar}
+#The plot titled "Daily PM2.5 Concentrations in Ulaanbaatar (µg/m³)" shows a time series of daily mean PM2.5 levels from 2015 through early 2025. The data reveals a recurring pattern of sharp spikes in pollution levels each year, with the highest concentrations consistently occurring during the colder months. These peaks reach over 600 µg/m³ in some years, notably in 2016 and 2017, suggesting severe air quality events. Although the magnitude of these spikes varies year to year, the pattern of elevated concentrations in specific periods remains consistent throughout the decade, indicating persistent seasonal pollution events.
 
 
 ```
@@ -191,6 +191,11 @@ ggplot(pm25_yearly_missing, aes(x = Year, y = months_with_missing)) +
   theme_minimal()
 ```
 
+```{Analysis, Number of Months with Missing PM2.5 Data}
+#Our analysis in Figure 2 reveals that data gaps were mostly depicted in 2016, with 10 months lacking complete PM2.5 measurements. Additionally, one month in 2017 also shows missing data. From 2018 onward, there have been no recorded months with missing data. Therefore, the team had to analyse months with missing PM2.5 data
+
+```
+
 #Distribution of Monthly PM2.5 Concentrations
 We also explore the variability of monthly PM2.5 to check for seasonal peaks and outliers.
 
@@ -203,6 +208,10 @@ ggplot(pm25_monthly, aes(y = raw_conc_monthly)) +
   ) +
   theme_minimal()
 ```
+```{Analysis, Distribution of Monthly PM2.5 Concentrations}
+#The boxplot summarizes the variation in monthly mean PM2.5 levels in Ulaanbaatar. The plot illustrates that the median monthly PM2.5 concentration is just above 50 µg/m³, with the interquartile range (IQR)—representing the middle 50% of values—extending from approximately 20 to 110 µg/m³. Several outliers are displayed above the upper whisker, with some months reporting concentrations exceeding 300 µg/m³. These outliers likely indicate extreme pollution events occurring in particular months, aligning with the sharp peaks in Figure 1. The extended upper whisker signifies a right-skewed distribution, implying that while high PM2.5 values are less common, they can be significantly elevated when they do occur. In summary, this boxplot demonstrates that most monthly averages remain substantially above the WHO 24-hour guideline of 15 µg/m³, with a few months experiencing extremely high levels, underscoring the seriousness and fluctuations of air pollution in Ulaanbaatar.
+```
+
 #Birth Outcomes Over Time
 Before merging exposure and outcomes, we visualize trends in live births and low birth weight births separately.
 
@@ -228,13 +237,12 @@ ggplot(births_merged, aes(x = Date, y = Low_Birth_Weight)) +
   ) +
   theme_minimal()
 ```
+```{Analysis, Monthly Low Birth Weight Births in Ulaanbaatar}
+#This chart shows that between 2016 and approximately 2021, the rate of LBW births was notably high and fluctuated significantly, consistently surpassing 160 births per month, occasionally exceeding 200. However, starting in 2022, a clear downward trend is evident, with both the average rate of LBW births and their levels of variability decreasing. By 2024, the number of LBW births often dips below 150 per month, marking some of the lowest figures recorded during the observed timeframe.
 
-##Analysis 
-
-In this section, we merge exposure and outcome datasets, calculate the low birth weight (LBW) rate, and begin preliminary modeling to investigate associations between PM2.5 exposure and birth outcomes.
-
+```
 #Merge Exposure and Outcome Data
-We link monthly PM2.5 exposure data with corresponding monthly birth outcomes.
+We link monthly PM2.5 exposure data with corresponding monthly birth outcomes. Therefore, in this section, we merge exposure and outcome datasets, calculate the low birth weight (LBW) rate, and begin preliminary modeling to investigate associations between PM2.5 exposure and birth outcomes.
 
 ```{r}
 # Merge datasets by Date
@@ -243,10 +251,10 @@ full_data <- births_merged %>%
   arrange(Date)
 ```
 
-
 #Calculate Low Birth Weight Rate
-We create a new variable:
-LBW rate (%) = (Low Birth Weight / Live Births) * 100
+# here we create a new variable:
+
+LBW_rate = (Low Birth Weight / Live Births) * 100
 
 ```{r}
 
@@ -254,9 +262,7 @@ LBW rate (%) = (Low Birth Weight / Live Births) * 100
 full_data <- full_data %>%
   mutate(LBW_rate = 100 * Low_Birth_Weight / Live_Births)
 
-
 ```
-
 
 #Summary Statistics
 
@@ -277,9 +283,7 @@ summary_stats %>%
 ```
 
 #Scatterplot: PM2.5 vs LBW Rate
-
-We visualize the bivariate relationship before modeling.
-
+# Now we visualize the bivariate relationship before modeling.
 
 ```{r}
 ggplot(full_data, aes(x = raw_conc_monthly, y = LBW_rate)) +
@@ -292,20 +296,25 @@ ggplot(full_data, aes(x = raw_conc_monthly, y = LBW_rate)) +
   ) +
   theme_minimal()
 ```
+```{Analysis, Relationship between Monthly PM2.5 and LBW Rate}
+#The plot reveals a positive trend, indicating that higher levels of PM2.5 are associated with slightly higher rates of low birth weight. Although the slope of the regression line is not steep, the upward direction suggests that increases in air pollution may contribute to adverse birth outcomes. The shaded area around the line represents the 95% confidence interval, showing some uncertainty in the estimate, but the trend remains visible.
+```
 
 #Simple Linear Regression
-We fit an initial simple model:
+#We fit an initial simple model:
 LBW Rate ~ Monthly PM2.5 Concentration
 
-
-
 ```{r}
-
 model_simple <- lm(LBW_rate ~ raw_conc_monthly, data = full_data)
 
 tidy(model_simple) %>%
   kable(caption = "Table 2. Simple Linear Regression of LBW Rate on PM2.5", digits = 3) %>%
   kable_styling(full_width = FALSE)
+```
+```{Analysis,Simple Linear Regression of LBW Rate on PM2.5}
+#```{Analysis, Relationship between Monthly PM2.5 and LBW Rate}
+#The plot reveals a positive trend, indicating that higher levels of PM2.5 are associated with slightly higher rates of low birth weight. Although the slope of the regression line is not steep, the upward direction suggests that increases in air pollution may contribute to adverse birth outcomes. The shaded area around the line represents the 95% confidence interval, showing some uncertainty in the estimate, but the trend remains visible.
+```
 ```
 
 #Lagged Exposure Variables
