@@ -1,6 +1,6 @@
 ---
 title: "Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar from 2016–2025"
-author: "Ahmedi, Barua, Bhuyan, Karayel"
+author: "Ahmadi, Barua, Bhuyan, Karayel"
 date: "`r Sys.Date()`"
 output:
   html_document:
@@ -33,8 +33,7 @@ library(janitor)
 library(forecast)
 library(car)
 ```
-# Rationale and Research Questions
-
+**Rationale and Research Questions**
 Air pollution, particularly PM2.5, remains a significant public health concern in Ulaanbaatar.  
 This project examines whether exposure to elevated PM2.5 concentrations during pregnancy is associated with an increased risk of low birth weight (LBW) among newborns between 2016 and 2025.
 
@@ -125,7 +124,7 @@ births_merged <- left_join(birth_weight_long, live_births_long, by = c("Aimag", 
 ```
 
 # Exploratory Analysis
-We begin by examining the structure, quality, and temporal characteristics of the air pollution data.
+We start by analyzing the structure, quality, and time-related aspects of the air pollution data.
 
 ##Daily and Monthly Aggregation of PM2.5
 
@@ -164,6 +163,11 @@ ggplot(pm25_daily, aes(x = Date, y = raw_conc_daily)) +
   theme_minimal()
 ```
 
+```{Analysis}
+#The plot titled "Daily PM2.5 Concentrations in Ulaanbaatar (µg/m³)" illustrates the average daily PM2.5 levels from 2015 until early 2025, showcasing a pronounced seasonal pattern. During winter, there are significant spikes—frequently surpassing 600 µg/m³ in 2016 and 2017—primarily attributed to coal burning for heating and atmospheric inversions that trap pollutants (World Bank, 2011; Amarsaikhan et al., 2014). Conversely, summer values are consistently lower, likely due to diminished emissions and enhanced air dispersion. These winter peaks greatly exceed the WHO’s recommended 24-hour safety limit of 15 µg/m³ (WHO, 2021), posing ongoing public health risks (Guttikunda & Lodoysamba, 2014). The chart is created using ggplot2 with a minimal theme and could be further improved by incorporating WHO guideline reference lines, annual dividers, or seasonal shading to enhance interpretability.
+
+
+```
 #Missing Data Patterns in PM2.5
 We evaluate missingness by calculating how many months each year had incomplete PM2.5 daily records.
 
