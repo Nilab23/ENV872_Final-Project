@@ -1,0 +1,846 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{5}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar from 2016--2025},
+  pdfauthor={Ahmadi, Barua, Bhuyan, Karayel},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Impact of PM2.5 Exposure on Low Birth Weight in Ulaanbaatar from
+2016--2025}
+\author{Ahmadi, Barua, Bhuyan, Karayel}
+\date{2025-04-29}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\textbf{Rationale and Research Questions} Air pollution, particularly
+PM2.5, remains a significant public health concern in Ulaanbaatar.\\
+This project examines whether exposure to elevated PM2.5 concentrations
+during pregnancy is associated with an increased risk of low birth
+weight (LBW) among newborns between 2016 and 2025.
+
+\textbf{Research Questions:} - What are the seasonal and long-term
+trends in PM2.5 concentrations in Ulaanbaatar? - Is there a measurable
+association between PM2.5 exposure levels and low birth weight rates? -
+Does the timing of PM2.5 exposure during pregnancy (examined through
+lagged exposure models) influence birth outcomes?
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\textbf{Dataset Information}
+
+\textbf{Data Sources} \#Birth data consisted of monthly counts of live
+births and low birth weight (LBW) births for each district in
+Ulaanbaatar. Air pollution data included daily and monthly averages of
+PM2.5 concentrations, aggregated to monthly values. These datasets were
+merged by month and district for analysis.
+
+\subsection{Data Cleaning and
+Wrangling}\label{data-cleaning-and-wrangling}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{PM2.5 data}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Combined annual CSV files across multiple years.
+  \item
+    Replaced invalid \texttt{-999} entries with \texttt{NA}.
+  \item
+    Aggregated hourly readings into daily and monthly averages to align
+    with birth record reporting.
+  \end{itemize}
+\item
+  \textbf{Birth outcomes data}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Reshaped from wide format to long format for time series analysis.
+  \item
+    Merged live births and low birth weight counts into a unified
+    dataset.
+  \end{itemize}
+\item
+  \textbf{Final merged dataset}:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Monthly PM2.5 exposure data was linked with corresponding monthly
+    birth outcome data by date.
+  \end{itemize}
+\end{itemize}
+
+\subsection{Dataset Structure}\label{dataset-structure}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2043}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4301}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3656}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Dataset
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Key Variables
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Notes
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+PM2.5 Pollution & DateTime, Raw Concentration, AQI & Aggregated to
+monthly averages \\
+Birth Outcomes & Date, Aimag, Low Birth Weight count, Live Births &
+Cleaned and merged records \\
+\end{longtable}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#No we load and prepare the raw PM2.5 and birth outcome datasets as described previously.}
+
+\CommentTok{\# Define file paths for PM2.5 data}
+\NormalTok{years }\OtherTok{\textless{}{-}} \DecValTok{2015}\SpecialCharTok{:}\DecValTok{2025}
+\NormalTok{pm25\_files }\OtherTok{\textless{}{-}} \FunctionTok{paste0}\NormalTok{(}\StringTok{"Data/Raw/Ulaanbaatar\_PM2.5\_"}\NormalTok{, years, }\StringTok{"\_YTD.csv"}\NormalTok{)}
+\FunctionTok{names}\NormalTok{(pm25\_files) }\OtherTok{\textless{}{-}}\NormalTok{ years}
+
+\CommentTok{\# Read and bind all PM2.5 files}
+\NormalTok{pm25\_all }\OtherTok{\textless{}{-}} \FunctionTok{map\_dfr}\NormalTok{(pm25\_files, }\SpecialCharTok{\textasciitilde{}} \FunctionTok{read\_csv}\NormalTok{(.x, }\AttributeTok{show\_col\_types =} \ConstantTok{FALSE}\NormalTok{))}
+
+\CommentTok{\# Clean and convert {-}999 to NA}
+\NormalTok{pm25\_all }\OtherTok{\textless{}{-}}\NormalTok{ pm25\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\FunctionTok{across}\NormalTok{(}\FunctionTok{where}\NormalTok{(is.numeric), }\SpecialCharTok{\textasciitilde{}} \FunctionTok{na\_if}\NormalTok{(., }\SpecialCharTok{{-}}\DecValTok{999}\NormalTok{))) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{clean\_names}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{DateTime =}\NormalTok{ date\_lt) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{DateTime =} \FunctionTok{parse\_date\_time}\NormalTok{(DateTime, }\AttributeTok{orders =} \StringTok{"ymd IMp"}\NormalTok{),}
+    \AttributeTok{Date     =} \FunctionTok{as\_date}\NormalTok{(DateTime)}
+\NormalTok{  )}
+
+\CommentTok{\# Load birth outcome data}
+\NormalTok{birth\_weight\_low }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"Data/Raw/BIRTH WEIGTH LOWER THAN 2500 GRAMS.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 1 Columns: 112
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr   (1): Aimag
+## dbl (111): 2016-01, 2016-02, 2016-03, 2016-04, 2016-05, 2016-06, 2016-07, 20...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{live\_births      }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"Data/Raw/LIVE BIRTHS.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 1 Columns: 112
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr   (1): Aimag
+## num (111): 2016-01, 2016-02, 2016-03, 2016-04, 2016-05, 2016-06, 2016-07, 20...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Clean numeric columns in live births (in case of commas)}
+\ControlFlowTok{for}\NormalTok{ (col }\ControlFlowTok{in} \FunctionTok{names}\NormalTok{(live\_births)[}\SpecialCharTok{{-}}\DecValTok{1}\NormalTok{]) \{}
+\NormalTok{  live\_births[[col]] }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{gsub}\NormalTok{(}\StringTok{","}\NormalTok{, }\StringTok{""}\NormalTok{, live\_births[[col]]))}
+\NormalTok{\}}
+
+\CommentTok{\# Reshape both datasets to long format}
+\NormalTok{birth\_weight\_long }\OtherTok{\textless{}{-}}\NormalTok{ birth\_weight\_low }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{Aimag, }\AttributeTok{names\_to =} \StringTok{"Month"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"Low\_Birth\_Weight"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Month =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"\^{}X"}\NormalTok{, }\StringTok{""}\NormalTok{, Month))}
+
+\NormalTok{live\_births\_long }\OtherTok{\textless{}{-}}\NormalTok{ live\_births }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{pivot\_longer}\NormalTok{(}\SpecialCharTok{{-}}\NormalTok{Aimag, }\AttributeTok{names\_to =} \StringTok{"Month"}\NormalTok{, }\AttributeTok{values\_to =} \StringTok{"Live\_Births"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Month =} \FunctionTok{gsub}\NormalTok{(}\StringTok{"\^{}X"}\NormalTok{, }\StringTok{""}\NormalTok{, Month))}
+
+\CommentTok{\# Merge and finalize}
+\NormalTok{births\_merged }\OtherTok{\textless{}{-}} \FunctionTok{left\_join}\NormalTok{(birth\_weight\_long, live\_births\_long, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Aimag"}\NormalTok{, }\StringTok{"Month"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Date =} \FunctionTok{ym}\NormalTok{(Month)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Aimag, Date, Low\_Birth\_Weight, Live\_Births)}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Exploratory Analysis and Visualizations}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#We start by analyzing the structure, quality, and time{-}related aspects of the air pollution data.}
+
+
+\CommentTok{\# Daily average}
+\NormalTok{pm25\_daily }\OtherTok{\textless{}{-}}\NormalTok{ pm25\_all }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Date) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{raw\_conc\_daily =} \FunctionTok{mean}\NormalTok{(raw\_conc, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{aqi\_daily =} \FunctionTok{mean}\NormalTok{(aqi, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+
+\CommentTok{\# Monthly average}
+\NormalTok{pm25\_monthly }\OtherTok{\textless{}{-}}\NormalTok{ pm25\_daily }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Month =} \FunctionTok{floor\_date}\NormalTok{(Date, }\StringTok{"month"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by}\NormalTok{(Month) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarize}\NormalTok{(}
+    \AttributeTok{raw\_conc\_monthly =} \FunctionTok{mean}\NormalTok{(raw\_conc\_daily, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{aqi\_monthly =} \FunctionTok{mean}\NormalTok{(aqi\_daily, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{.groups =} \StringTok{"drop"}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(pm25\_daily, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Date, }\AttributeTok{y =}\NormalTok{ raw\_conc\_daily)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{color =} \StringTok{"steelblue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Daily PM2.5 Concentrations in Ulaanbaatar (µg/m³)"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Date"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Daily Mean PM2.5"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: Removed 305 rows containing missing values or values outside the scale range
+## (`geom_line()`).
+\end{verbatim}
+
+\includegraphics{Final-Project_files/figure-latex/PM2.5 Trends Over Time-1.pdf}
+
+\#The plot titled ``Daily PM2.5 Concentrations in Ulaanbaatar (µg/m³)''
+shows a time series of daily mean PM2.5 levels from 2015 through early
+2025. The data reveals a recurring pattern of sharp spikes in pollution
+levels each year, with the highest concentrations consistently occurring
+during the colder months. These peaks reach over 600 µg/m³ in some
+years, notably in 2016 and 2017, suggesting severe air quality events.
+Although the magnitude of these spikes varies year to year, the pattern
+of elevated concentrations in specific periods remains consistent
+throughout the decade, indicating persistent seasonal pollution events.
+
+\begin{verbatim}
+
+
+``` r
+#We evaluate missingness by calculating how many months each year had incomplete PM2.5 daily records.
+
+pm25_yearly_missing <- pm25_monthly %>%
+  mutate(Year = year(Month)) %>%
+  group_by(Year) %>%
+  summarize(
+    months_with_missing = sum(is.na(raw_conc_monthly)),
+    .groups = "drop"
+  )
+
+ggplot(pm25_yearly_missing, aes(x = Year, y = months_with_missing)) +
+  geom_col(fill = "tomato") +
+  labs(
+    title = "Figure 2. Number of Months with Missing PM2.5 Data",
+    x = "Year",
+    y = "Months with Missing PM2.5"
+  ) +
+  theme_minimal()
+\end{verbatim}
+
+\includegraphics{Final-Project_files/figure-latex/Missing Data Patterns in PM2.5-1.pdf}
+
+\#Our analysis in Figure 2 reveals that data gaps were mostly depicted
+in 2016, with 10 months lacking complete PM2.5 measurements.
+Additionally, one month in 2017 also shows missing data. From 2018
+onward, there have been no recorded months with missing data. Therefore,
+the team had to analyse months with missing PM2.5 data
+
+\begin{verbatim}
+
+
+``` r
+#We also explore the variability of monthly PM2.5 to check for seasonal peaks and outliers.
+
+ggplot(pm25_monthly, aes(y = raw_conc_monthly)) +
+  geom_boxplot(outlier.color = "red") +
+  labs(
+    title = "Figure 3. Distribution of Monthly PM2.5 Concentrations",
+    y = "Monthly Mean PM2.5 (µg/m³)"
+  ) +
+  theme_minimal()
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 11 rows containing non-finite outside the scale range
+## (`stat_boxplot()`).
+\end{verbatim}
+
+\includegraphics{Final-Project_files/figure-latex/Distribution of Monthly PM2.5 Concentrations-1.pdf}
+
+\#The boxplot summarizes the variation in monthly mean PM2.5 levels in
+Ulaanbaatar. The plot illustrates that the median monthly PM2.5
+concentration is just above 50 µg/m³, with the interquartile range
+(IQR)---representing the middle 50\% of values---extending from
+approximately 20 to 110 µg/m³. Several outliers are displayed above the
+upper whisker, with some months reporting concentrations exceeding 300
+µg/m³. These outliers likely indicate extreme pollution events occurring
+in particular months, aligning with the sharp peaks in Figure 1. The
+extended upper whisker signifies a right-skewed distribution, implying
+that while high PM2.5 values are less common, they can be significantly
+elevated when they do occur. In summary, this boxplot demonstrates that
+most monthly averages remain substantially above the WHO 24-hour
+guideline of 15 µg/m³, with a few months experiencing extremely high
+levels, underscoring the seriousness and fluctuations of air pollution
+in Ulaanbaatar.
+
+\begin{verbatim}
+
+
+
+``` r
+#Before merging exposure and outcomes, we visualize trends in live births and low birth weight births separately.
+
+# Plot live births over time
+ggplot(births_merged, aes(x = Date, y = Live_Births)) +
+  geom_line(color = "darkgreen") +
+  labs(
+    title = "Figure 4. Monthly Live Births in Ulaanbaatar",
+    x = "Date",
+    y = "Number of Live Births"
+  ) +
+  theme_minimal()
+\end{verbatim}
+
+\includegraphics{Final-Project_files/figure-latex/Birth Outcomes Over Time-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Plot low birth weight births over time}
+\FunctionTok{ggplot}\NormalTok{(births\_merged, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ Date, }\AttributeTok{y =}\NormalTok{ Low\_Birth\_Weight)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_line}\NormalTok{(}\AttributeTok{color =} \StringTok{"purple"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Figure 5. Monthly Low Birth Weight Births in Ulaanbaatar"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Date"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Number of LBW Births"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Final-Project_files/figure-latex/Birth Outcomes Over Time-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{\#This chart shows that between 2016 and approximately 2021, the rate of LBW births was notably high and fluctuated significantly, consistently surpassing 160 births per month, occasionally exceeding 200. However, starting in 2022, a clear downward trend is evident, with both the average rate of LBW births and their levels of variability decreasing. By 2024, the number of LBW births often dips below 150 per month, marking some of the lowest figures recorded during the observed timeframe.}
+\end{Highlighting}
+\end{Shaded}
+
+\#Merge Exposure and Outcome Data We link monthly PM2.5 exposure data
+with corresponding monthly birth outcomes. Therefore, in this section,
+we merge exposure and outcome datasets, calculate the low birth weight
+(LBW) rate, and begin preliminary modeling to investigate associations
+between PM2.5 exposure and birth outcomes.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Merge datasets by Date}
+\NormalTok{full\_data }\OtherTok{\textless{}{-}}\NormalTok{ births\_merged }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{left\_join}\NormalTok{(pm25\_monthly, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"Date"} \OtherTok{=} \StringTok{"Month"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(Date)}
+\end{Highlighting}
+\end{Shaded}
+
+\#Calculate Low Birth Weight Rate \# here we create a new variable:
+
+LBW\_rate = (Low Birth Weight / Live Births) * 100
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Calculate LBW rate as percentage}
+\NormalTok{full\_data }\OtherTok{\textless{}{-}}\NormalTok{ full\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}\AttributeTok{LBW\_rate =} \DecValTok{100} \SpecialCharTok{*}\NormalTok{ Low\_Birth\_Weight }\SpecialCharTok{/}\NormalTok{ Live\_Births)}
+\end{Highlighting}
+\end{Shaded}
+
+\#Summary Statistics
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{summary\_stats }\OtherTok{\textless{}{-}}\NormalTok{ full\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{summarise}\NormalTok{(}
+    \AttributeTok{Mean\_LBW\_Rate =} \FunctionTok{mean}\NormalTok{(LBW\_rate, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Median\_LBW\_Rate =} \FunctionTok{median}\NormalTok{(LBW\_rate, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Mean\_PM25 =} \FunctionTok{mean}\NormalTok{(raw\_conc\_monthly, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{),}
+    \AttributeTok{Median\_PM25 =} \FunctionTok{median}\NormalTok{(raw\_conc\_monthly, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{  )}
+
+\NormalTok{summary\_stats }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Table 1. Summary Statistics of LBW Rate and PM2.5"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{rrrr}
+\caption{\label{tab:unnamed-chunk-3}Table 1. Summary Statistics of LBW Rate and PM2.5}\\
+\toprule
+Mean\_LBW\_Rate & Median\_LBW\_Rate & Mean\_PM25 & Median\_PM25\\
+\midrule
+5.03 & 4.96 & 67.28 & 35.22\\
+\bottomrule
+\end{longtable}
+
+\#Scatterplot: PM2.5 vs LBW Rate \# Now we visualize the bivariate
+relationship before modeling.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{ggplot}\NormalTok{(full\_data, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ raw\_conc\_monthly, }\AttributeTok{y =}\NormalTok{ LBW\_rate)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{alpha =} \FloatTok{0.7}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_smooth}\NormalTok{(}\AttributeTok{method =} \StringTok{"lm"}\NormalTok{, }\AttributeTok{se =} \ConstantTok{TRUE}\NormalTok{, }\AttributeTok{color =} \StringTok{"blue"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Figure 6. Relationship between Monthly PM2.5 and LBW Rate"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Monthly PM2.5 (µg/m³)"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Low Birth Weight Rate (\%)"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## `geom_smooth()` using formula = 'y ~ x'
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 4 rows containing non-finite outside the scale range
+## (`stat_smooth()`).
+\end{verbatim}
+
+\begin{verbatim}
+## Warning: Removed 4 rows containing missing values or values outside the scale range
+## (`geom_point()`).
+\end{verbatim}
+
+\includegraphics{Final-Project_files/figure-latex/unnamed-chunk-4-1.pdf}
+\#The plot reveals a positive trend, indicating that higher levels of
+PM2.5 are associated with slightly higher rates of low birth weight.
+Although the slope of the regression line is not steep, the upward
+direction suggests that increases in air pollution may contribute to
+adverse birth outcomes. The shaded area around the line represents the
+95\% confidence interval, showing some uncertainty in the estimate, but
+the trend remains visible.
+
+\begin{verbatim}
+
+#Simple Linear Regression
+#We fit an initial simple model:
+LBW Rate ~ Monthly PM2.5 Concentration
+
+
+``` r
+model_simple <- lm(LBW_rate ~ raw_conc_monthly, data = full_data)
+
+tidy(model_simple) %>%
+  kable(caption = "Table 2. Simple Linear Regression of LBW Rate on PM2.5", digits = 3) %>%
+  kable_styling(full_width = FALSE)
+\end{verbatim}
+
+\begin{longtable}[t]{lrrrr}
+\caption{\label{tab:unnamed-chunk-5}Table 2. Simple Linear Regression of LBW Rate on PM2.5}\\
+\toprule
+term & estimate & std.error & statistic & p.value\\
+\midrule
+(Intercept) & 4.928 & 0.072 & 68.089 & 0.000\\
+raw\_conc\_monthly & 0.001 & 0.001 & 1.597 & 0.113\\
+\bottomrule
+\end{longtable}
+
+\#The plot shows a positive trend, indicating that higher levels of
+PM2.5 are associated with slightly higher rates of low birth weight.
+Although the slope of the regression line is not steep, the upward
+direction suggests that increases in air pollution may contribute to
+adverse birth outcomes. The shaded area around the line represents the
+95\% confidence interval, showing some uncertainty in the estimate, but
+the trend remains visible.
+
+\begin{verbatim}
+\end{verbatim}
+
+\#Lagged Exposure Variables We construct lagged PM2.5 variables to
+capture exposures during previous months relative to the birth month.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{full\_data }\OtherTok{\textless{}{-}}\NormalTok{ full\_data }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{arrange}\NormalTok{(Date) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{mutate}\NormalTok{(}
+    \AttributeTok{pm25\_lag0 =}\NormalTok{ raw\_conc\_monthly,            }\CommentTok{\# Current month}
+    \AttributeTok{pm25\_lag1 =} \FunctionTok{lag}\NormalTok{(raw\_conc\_monthly, }\DecValTok{1}\NormalTok{),     }\CommentTok{\# 1 month before}
+    \AttributeTok{pm25\_lag2 =} \FunctionTok{lag}\NormalTok{(raw\_conc\_monthly, }\DecValTok{2}\NormalTok{),     }\CommentTok{\# 2 months before}
+    \AttributeTok{pm25\_lag3 =} \FunctionTok{lag}\NormalTok{(raw\_conc\_monthly, }\DecValTok{3}\NormalTok{)      }\CommentTok{\# 3 months before}
+\NormalTok{  )}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Now We fit a distributed lag linear model:}
+\CommentTok{\#LBW Rate \textasciitilde{} PM2.5 exposure in current and previous 3 months}
+
+\NormalTok{model\_lag }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(LBW\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pm25\_lag0 }\SpecialCharTok{+}\NormalTok{ pm25\_lag1 }\SpecialCharTok{+}\NormalTok{ pm25\_lag2 }\SpecialCharTok{+}\NormalTok{ pm25\_lag3, }\AttributeTok{data =}\NormalTok{ full\_data)}
+
+\FunctionTok{tidy}\NormalTok{(model\_lag) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Table 3. Distributed Lag Model of LBW Rate on PM2.5 Exposure"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lrrrr}
+\caption{\label{tab:Distributed Lag Model}Table 3. Distributed Lag Model of LBW Rate on PM2.5 Exposure}\\
+\toprule
+term & estimate & std.error & statistic & p.value\\
+\midrule
+(Intercept) & 5.053 & 0.097 & 52.155 & 0.000\\
+pm25\_lag0 & -0.001 & 0.002 & -0.369 & 0.713\\
+pm25\_lag1 & 0.002 & 0.003 & 0.750 & 0.455\\
+pm25\_lag2 & 0.001 & 0.003 & 0.441 & 0.660\\
+pm25\_lag3 & -0.003 & 0.002 & -1.742 & 0.085\\
+\bottomrule
+\end{longtable}
+
+\#The distributed lag model does not find statistically significant
+evidence that monthly PM2.5 exposure from 0 to 3 months prior has a
+measurable impact on LBW rate in this dataset. However, the
+near-significant result for lag 3 could indicate a potential delayed
+effect worth further investigation, perhaps with more data or a
+different model specification.
+
+\begin{verbatim}
+
+
+``` r
+#Cumulative Exposure Variables: We also create cumulative exposure averages to smooth over lag periods, as fetal development may be affected by sustained pollution rather than isolated monthly spikes.
+
+full_data <- full_data %>%
+  mutate(
+    pm25_cum12 = (pm25_lag1 + pm25_lag2) / 2,          # 1–2 months average
+    pm25_cum123 = (pm25_lag1 + pm25_lag2 + pm25_lag3) / 3  # 1–3 months average
+  )
+  
+#Analysis: Here, we also get the same result we got for the distributed lag model
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Finally, we fit simple models of LBW Rate on cumulative exposures:}
+
+\NormalTok{model\_cum12 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(LBW\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pm25\_cum12, }\AttributeTok{data =}\NormalTok{ full\_data)}
+\NormalTok{model\_cum123 }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(LBW\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pm25\_cum123, }\AttributeTok{data =}\NormalTok{ full\_data)}
+
+\FunctionTok{bind\_rows}\NormalTok{(}
+  \FunctionTok{tidy}\NormalTok{(model\_cum12) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Model =} \StringTok{"Cumulative Lag 1{-}2"}\NormalTok{),}
+  \FunctionTok{tidy}\NormalTok{(model\_cum123) }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{Model =} \StringTok{"Cumulative Lag 1{-}3"}\NormalTok{)}
+\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{select}\NormalTok{(Model, term, estimate, std.error, statistic, p.value) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Table 4. Regression of LBW Rate on Cumulative PM2.5 Exposures"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{3}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{llrrrr}
+\caption{\label{tab:Regression on Cumulative Exposure}Table 4. Regression of LBW Rate on Cumulative PM2.5 Exposures}\\
+\toprule
+Model & term & estimate & std.error & statistic & p.value\\
+\midrule
+Cumulative Lag 1-2 & (Intercept) & 4.944 & 0.080 & 62.183 & 0.000\\
+Cumulative Lag 1-2 & pm25\_cum12 & 0.001 & 0.001 & 1.421 & 0.158\\
+Cumulative Lag 1-3 & (Intercept) & 4.985 & 0.085 & 58.483 & 0.000\\
+Cumulative Lag 1-3 & pm25\_cum123 & 0.001 & 0.001 & 0.863 & 0.390\\
+\bottomrule
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Analysis:Both cumulative models show a very small estimated increase in LBW rate (0.001 percentage points) per unit increase in cumulative PM2.5 exposure, but neither result is statistically significant. This suggests that, based on the available data, cumulative PM2.5 exposure in the last 2–3 months of pregnancy is not strongly or consistently associated with changes in LBW rate.}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Now we assess multicollinearity among the lagged PM2.5 variables using VIFs.A VIF greater than 5–10 indicates problematic multicollinearity.}
+
+\CommentTok{\# Load car package if not already}
+\FunctionTok{library}\NormalTok{(car)}
+
+\CommentTok{\# Fit lagged model again if needed}
+\NormalTok{model\_lag }\OtherTok{\textless{}{-}} \FunctionTok{lm}\NormalTok{(LBW\_rate }\SpecialCharTok{\textasciitilde{}}\NormalTok{ pm25\_lag0 }\SpecialCharTok{+}\NormalTok{ pm25\_lag1 }\SpecialCharTok{+}\NormalTok{ pm25\_lag2 }\SpecialCharTok{+}\NormalTok{ pm25\_lag3, }\AttributeTok{data =}\NormalTok{ full\_data)}
+
+\CommentTok{\# Calculate VIFs}
+\NormalTok{vif\_values }\OtherTok{\textless{}{-}} \FunctionTok{vif}\NormalTok{(model\_lag)}
+
+\CommentTok{\# Display neatly}
+\NormalTok{vif\_values }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{as.data.frame}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rownames\_to\_column}\NormalTok{(}\StringTok{"Predictor"}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{rename}\NormalTok{(}\AttributeTok{VIF =} \StringTok{"."}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable}\NormalTok{(}\AttributeTok{caption =} \StringTok{"Table 5. Variance Inflation Factors for Lagged PM2.5 Model"}\NormalTok{, }\AttributeTok{digits =} \DecValTok{2}\NormalTok{) }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{kable\_styling}\NormalTok{(}\AttributeTok{full\_width =} \ConstantTok{FALSE}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{longtable}[t]{lr}
+\caption{\label{tab:Multicollinearity Diagnostics}Table 5. Variance Inflation Factors for Lagged PM2.5 Model}\\
+\toprule
+Predictor & VIF\\
+\midrule
+pm25\_lag0 & 4.06\\
+pm25\_lag1 & 8.89\\
+pm25\_lag2 & 8.08\\
+pm25\_lag3 & 3.44\\
+\bottomrule
+\end{longtable}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#Analysis:The high VIF values (especially for lags 1 and 2) suggest that the lagged PM2.5 variables are strongly correlated with one another, which can inflate standard errors and make it difficult to detect statistically significant effects in your model.}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{Methodology and Limitations}
+
+\#Statistical Approach and Results \textbf{The analysis began with a
+simple linear regression to test the association between monthly PM2.5
+concentrations and LBW rates in Ulaanbaatar. This initial model, which
+regressed LBW rates on same-month PM2.5 levels, produced a weak and
+statistically non-significant relationship {[}p = 0.113{]}.}
+
+\textbf{To account for the possibility that air pollution during
+pregnancy may affect birth outcomes with a delay, a distributed lag
+model was applied, incorporating PM2.5 exposures lagged by 0--3 months.
+However, this approach revealed high multicollinearity among lagged
+variables (variance inflation factors greater than 8 for some lags),
+which inflated standard errors and made it difficult to isolate the
+effect of any single month's exposure.}
+
+\textbf{Cumulative exposure models were then constructed by averaging
+PM2.5 over biologically plausible windows (e.g., 1--2 months and 1--3
+months before birth) to capture sustained exposure during critical
+gestational periods. Despite this, the results remained non-significant,
+with small coefficients beta = 0.001, high p values {[}p = 0.158 for 1-2
+months, p = 0.390 for 1-3 months{]}}
+
+\textbf{These findings contrast with robust associations reported in the
+literature, where studies using individual-level data and precise
+gestational timing (such as aligning PM2.5 exposure with the second or
+third trimester) consistently found significant effects (Amnuaylojaroen
+\& Saokaew, 2024; Zhang et al., 2019). For example, multinational
+meta-analyses and cohort studies that adjusted for confounders like
+socioeconomic status and healthcare access have reported a 5--8\%
+increase in LBW risk per 10 µg/m³ rise in PM2.5 (Lee \& Holm, 2022). The
+lack of significance in the current analysis likely stems from
+methodological limitations, including the use of aggregated monthly data
+(which cannot pinpoint critical gestational windows), unmeasured
+confounders (such as maternal age and poverty), and ecological bias.}
+
+\textbf{Discussion} \#The present analysis did not identify a
+statistically significant relationship between monthly PM2.5
+concentrations and LBW rates in Ulaanbaatar, regardless of whether
+exposure was considered in the same month, in previous months, or as a
+cumulative average. This outcome contrasts with findings from other
+regions, where higher air pollution during pregnancy has been linked to
+increased risk of LBW, especially in low-income or high-exposure
+settings (Amnuaylojaroen \& Saokaew, 2024; Lee \& Holm, 2022; Zhang et
+al., 2019). The discrepancy likely reflects differences in data
+structure and methodology. Specifically, the use of monthly aggregated
+data in this study limited the ability to align pollution exposure
+precisely with the most sensitive periods of pregnancy. Additionally,
+the absence of individual-level data and adjustment for important
+confounders, such as socioeconomic status and access to healthcare, may
+have masked subtle or time-specific effects of PM2.5 exposure.
+
+\#Limitations Several limitations should be considered. First, monthly
+aggregated data limited the ability to pinpoint exposure during the most
+critical weeks of pregnancy, which is essential in air pollution and
+birth outcome research (Amnuaylojaroen \& Saokaew, 2024; Zhang et al.,
+2019). Second, important confounders such as maternal age, income, and
+access to healthcare were not included, even though these factors are
+known to influence both pollution exposure and birth outcomes (Lee \&
+Holm, 2022). Third, reliance on group-level data rather than individual
+pregnancy records may have introduced ecological bias. Fourth, high
+correlation between PM2.5 levels in adjacent months made it difficult to
+determine which period of exposure had the strongest effect. Finally,
+the sample size and time span may not have been sufficient to detect
+small or modest effects. Future research should use data that allow for
+more accurate timing of exposure and include additional variables to
+better understand how air pollution affects birth outcomes in Mongolia.
+
+\textbf{Key findings} - PM2.5 concentrations in Ulaanbaatar showed
+strong seasonal variation, with extreme peaks in winter months. - The
+highest pollution levels occurred in 2016 and 2017, exceeding 600 µg/m³
+on some days. - Monthly low birth weight (LBW) rates showed a declining
+trend starting in 2022. - Simple and lagged linear models did not detect
+a statistically significant association between PM2.5 exposure and LBW
+rate. - Multicollinearity among lagged exposure variables was high,
+limiting the interpretability of individual lag effects.
+
+\textbf{conclusion} While elevated PM2.5 exposure in Ulaanbaatar is
+clearly a recurring and serious public health concern, this analysis
+does not find strong statistical evidence that short-term monthly or
+lagged PM2.5 exposure is independently associated with changes in LBW
+rates. Future studies should explore longer exposure windows and
+consider individual-level birth data to strengthen causal inference as
+we lacked the birth data here.
+
+\textbf{References} Amnuaylojaroen, T., \& Saokaew, S. (2024). Prenatal
+PM2.5 exposure and its association with low birth weight: A systematic
+review and meta-analysis. Toxics, 12, 446. Lee, J. R., \& Holm, S. M.
+(2022). The association between ambient PM2.5 and low birth weight in
+California. International Journal of Environmental Research and Public
+Health, 19, 13554. Zhang, Y., Wang, J., Chen, L., et al.~(2019). Ambient
+PM2.5 and clinically recognized early pregnancy loss: A case-control
+study with spatiotemporal exposure predictions. Environment
+International, 126, 422--429.
+
+\end{document}
